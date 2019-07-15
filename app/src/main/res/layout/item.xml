@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_marginRight="20dp"
+    >
+<TextView
+    android:id="@+id/day"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:textSize="20dp"
+    android:text="Mon"
+    android:layout_marginLeft="15dp"
+    android:fontFamily="@font/myfont"
+    />
+    <ImageView
+        android:id="@+id/weather_img"
+        android:layout_width="65dp"
+        android:layout_height="65dp"
+
+        />
+    <TextView
+        android:id="@+id/weather_temp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="17dp"
+        android:text="0~3℃"
+        android:fontFamily="@font/myfont"
+        />
+</LinearLayout>
