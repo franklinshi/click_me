@@ -38,7 +38,6 @@ public class frag_ele extends Fragment {
     private static final int goalStat = 0x005;
     private static final int callStat = 0x006;
     private static final int passStat = 0x007;
-    private static final int timeUp = 0x008;
 
     MainActivity mActivity;
     static Bitmap[] bitmaps = new Bitmap[2]; //用来做电梯门开关动画的bitmap数组
@@ -165,158 +164,163 @@ public class frag_ele extends Fragment {
     private final Handler mqttHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            if (msg.what == doorStat) {
-                String mDoor = msg.getData().getString("doorStat");
-                int mFloor = msg.getData().getInt("floorStat");
-                floor_tv.setText("floor " + mFloor);
-                arrow.setBackground(null);
-                if (mDoor.equals("opening")) {
-                    left_img.animate().cancel();
-                    right_img.animate().cancel();
-                    open_door();
-                } else if (mDoor.equals("closing")) {
-                    left_img.animate().cancel();
-                    right_img.animate().cancel();
-                    close_door();
-                }else if(mDoor.equals("closed")){
-                    if(!called)
-                    if(destination == mFloor) {
-                        cnt_down.setVisibility(View.INVISIBLE);
+            switch (msg.what){
+                case doorStat:
+                    String mDoor = msg.getData().getString("doorStat");
+                    int mFloor = msg.getData().getInt("floorStat");
+                    floor_tv.setText("floor " + mFloor);
+                    arrow.setBackground(null);
+                    if (mDoor.equals("opening")) {
+                        left_img.animate().cancel();
+                        right_img.animate().cancel();
+                        open_door();
+                    } else if (mDoor.equals("closing")) {
+                        left_img.animate().cancel();
+                        right_img.animate().cancel();
+                        close_door();
+                    }else if(mDoor.equals("closed")){
+                        if(!called)
+                            if(destination == mFloor) {
+                                cnt_down.setVisibility(View.INVISIBLE);
+                            }
+                        if(mFloor == 1)
+                            called = false;
                     }
-                    if(mFloor == 1)
-                        called = false;
-                }
+                    if(mFloor == 2){
+                        if(t1!=null) {
+                            t1.cancel();
+                            t1 = null;
+                            t1 = new CountDownTimer((solve(mDoor)+1) * 1000, 1000) {
+                                @Override
+                                public void onTick(long millisUntilFinished) {
+                                    cnt_down.setText(millisUntilFinished / 1000 + "s");
+                                }
 
-                if(mFloor == 2){
-                    if(t1!=null) {
-                        t1.cancel();
-                        t1 = null;
-                        t1 = new CountDownTimer((solve(mDoor)+1) * 1000, 1000) {
-                            @Override
-                            public void onTick(long millisUntilFinished) {
-                                cnt_down.setText(millisUntilFinished / 1000 + "s");
-                            }
+                                @Override
+                                public void onFinish() {
+                                }
+                            }.start();
+                        }else{
+                            t1 = new CountDownTimer((solve("opening")+1) * 1000, 1000) {
+                                @Override
+                                public void onTick(long millisUntilFinished) {
+                                    cnt_down.setText(millisUntilFinished / 1000 + "s");
+                                }
 
-                            @Override
-                            public void onFinish() {
-                            }
-                        }.start();
-                    }else{
-                        t1 = new CountDownTimer((solve("opening")+1) * 1000, 1000) {
-                            @Override
-                            public void onTick(long millisUntilFinished) {
-                                cnt_down.setText(millisUntilFinished / 1000 + "s");
-                            }
-
-                            @Override
-                            public void onFinish() {
-                            }
-                        }.start();
+                                @Override
+                                public void onFinish() {
+                                }
+                            }.start();
+                        }
                     }
-                }
-
-            } //收到电梯门状态消息更新显示的动画和电梯状态数据
-            else if(msg.what == liftStat) {
-                if(destination == 1)
-                cnt_down.setVisibility(View.VISIBLE);
-                String direction = msg.getData().getString("direction");
-                if(direction.equals("up")){
-                    arrow.setBackground(getActivity().getResources().getDrawable(R.drawable.up_arrow));
-                    if(t1 != null) {
-                        t1.cancel();
-                        t1 = null;
-                        t1 = new CountDownTimer((solve("opening") + 9) * 1000, 1000) {
-                            @Override
-                            public void onTick(long millisUntilFinished) {
-                                cnt_down.setText(millisUntilFinished / 1000 + "s");
-                            }
-
-                            @Override
-                            public void onFinish() {
-                            }
-                        }.start();
-                    }else{
-                        t1 = new CountDownTimer((solve("opening") + 9) * 1000, 1000) {
-                            @Override
-                            public void onTick(long millisUntilFinished) {
-                                cnt_down.setText(millisUntilFinished / 1000 + "s");
-                            }
-
-                            @Override
-                            public void onFinish() {
-                            }
-                        }.start();
-                    }
-                }else if(direction.equals("down")){
-                    arrow.setBackground(getActivity().getResources().getDrawable(R.drawable.down_arrow));
-                    if(t1 != null) {
-                        t1.cancel();
-                        t1 = null;
-                        t1 = new CountDownTimer((9) * 1000, 1000) {
-                            @Override
-                            public void onTick(long millisUntilFinished) {
-                                cnt_down.setText(millisUntilFinished / 1000 + "s");
-                            }
-                            @Override
-                            public void onFinish() {
-                            }
-                        }.start();
-                    }else{
-                        t1 = new CountDownTimer((9) * 1000, 1000) {
-                            @Override
-                            public void onTick(long millisUntilFinished) {
-                                cnt_down.setText(millisUntilFinished / 1000 + "s");
-                            }
-
-                            @Override
-                            public void onFinish() {
-                            }
-                        }.start();
-                    }
-                }
-            }
-            else if(msg.what == goalStat){
-                destination = msg.getData().getInt("destination");
-            }
-            else if(msg.what == callStat){
-                Integer fromFloor = msg.getData().getInt("fromfloor");
-                switch (fromFloor){
-                    case 1:
-                    case 5:
-                    case 7:
-                    case 9:
-                        called = true;
+                    break;
+                case liftStat:
+                    if(destination == 1)
                         cnt_down.setVisibility(View.VISIBLE);
-                        break;
-                    default:
-                }
-            }
-            else if(msg.what == passStat){
-                String firstName = msg.getData().getString("firstname");
-                if(firstName.equals(null))firstName = "";
-                String lastName = msg.getData().getString("lastname");
-                welcome.setText("Welcome, "+firstName+" "+lastName);
-                if(t2!=null){
-                    t2.cancel();
-                    t2 = null;
-                }
-                t2 = new CountDownTimer(5 * 1000, 1000) {
-                    @Override
-                    public void onTick(long millisUntilFinished) {
+                    String direction = msg.getData().getString("direction");
+                    if(direction.equals("up")){
+                        arrow.setBackground(getActivity().getResources().getDrawable(R.drawable.up_arrow));
+                        if(t1 != null) {
+                            t1.cancel();
+                            t1 = null;
+                            t1 = new CountDownTimer((solve("opening") + 9) * 1000, 1000) {
+                                @Override
+                                public void onTick(long millisUntilFinished) {
+                                    cnt_down.setText(millisUntilFinished / 1000 + "s");
+                                }
+
+                                @Override
+                                public void onFinish() {
+                                }
+                            }.start();
+                        }else{
+                            t1 = new CountDownTimer((solve("opening") + 9) * 1000, 1000) {
+                                @Override
+                                public void onTick(long millisUntilFinished) {
+                                    cnt_down.setText(millisUntilFinished / 1000 + "s");
+                                }
+
+                                @Override
+                                public void onFinish() {
+                                }
+                            }.start();
+                        }
+                    }else if(direction.equals("down")){
+                        arrow.setBackground(getActivity().getResources().getDrawable(R.drawable.down_arrow));
+                        if(t1 != null) {
+                            t1.cancel();
+                            t1 = null;
+                            t1 = new CountDownTimer((9) * 1000, 1000) {
+                                @Override
+                                public void onTick(long millisUntilFinished) {
+                                    cnt_down.setText(millisUntilFinished / 1000 + "s");
+                                }
+                                @Override
+                                public void onFinish() {
+                                }
+                            }.start();
+                        }else{
+                            t1 = new CountDownTimer((9) * 1000, 1000) {
+                                @Override
+                                public void onTick(long millisUntilFinished) {
+                                    cnt_down.setText(millisUntilFinished / 1000 + "s");
+                                }
+
+                                @Override
+                                public void onFinish() {
+                                }
+                            }.start();
+                        }
                     }
-                    @Override
-                    public void onFinish() {
-                        Message msg = new Message();
-                        msg.what = timeUp;
-                        mqttHandler.sendMessage(msg);
+                    break;
+
+                case goalStat:
+                    destination = msg.getData().getInt("destination");
+                    break;
+
+                case callStat:
+                    Integer fromFloor = msg.getData().getInt("fromfloor");
+                    switch (fromFloor){
+                        case 1:
+                        case 5:
+                        case 7:
+                        case 9:
+                            called = true;
+                            cnt_down.setVisibility(View.VISIBLE);
+                            break;
+                        default:
                     }
-                }.start();
-            }
-            else if(msg.what == timeUp){
-                welcome.setText("");
+                    break;
+                case passStat:
+                    String firstName = msg.getData().getString("firstname");
+                    if(firstName.equals(null))firstName = "";
+                    String lastName = msg.getData().getString("lastname");
+                    welcome.setText("Welcome, "+firstName+" "+lastName);
+                    if(t2!=null){
+                        t2.cancel();
+                        t2 = null;
+                    }
+                    t2 = new CountDownTimer(5 * 1000, 1000) {
+                        @Override
+                        public void onTick(long millisUntilFinished) {
+                        }
+                        @Override
+                        public void onFinish() {
+                            if(getActivity()!=null){
+                                getActivity().runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        welcome.setText("");
+                                    }
+                                });
+                            }
+                        }
+                    }.start();
+                    break;
+
+                default:
             }
         }
-
     };
 
 
