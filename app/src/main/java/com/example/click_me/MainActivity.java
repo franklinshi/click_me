@@ -16,6 +16,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -33,6 +34,7 @@ import com.amap.api.services.weather.LocalWeatherLive;
 import com.amap.api.services.weather.LocalWeatherLiveResult;
 import com.amap.api.services.weather.WeatherSearch;
 import com.amap.api.services.weather.WeatherSearchQuery;
+import com.example.click_me.adapter.AutoPollAdapter;
 import com.example.click_me.adapter.NewsAdapter;
 import com.example.click_me.adapter.weatherAdapter;
 import com.example.click_me.entity.news_item;
@@ -106,7 +108,7 @@ public class MainActivity extends FragmentActivity implements WeatherSearch.OnWe
     @Bind(R.id.card_ele)
     CardView card_ele;
     @Bind(R.id.main_news_recyclerView)
-    RecyclerView news_recyclerView;
+    AutoPollRecyclerView news_recyclerView;
 
 
     @Override
@@ -164,11 +166,16 @@ public class MainActivity extends FragmentActivity implements WeatherSearch.OnWe
                 ni.setContent("现代摩比斯研驾驶员状态预警系统，探测驾驶员是否粗心驾驶");
                 newsList.add(ni);
             }
+            /*
             NewsAdapter newsAdapter = new NewsAdapter(newsList);
             LinearLayoutManager manager_news = new LinearLayoutManager(this);
             manager_news.setOrientation(LinearLayoutManager.VERTICAL);
             news_recyclerView.setLayoutManager(manager_news);
-            news_recyclerView.setAdapter(newsAdapter);
+            news_recyclerView.setAdapter(newsAdapter);*/
+            AutoPollAdapter adapter = new AutoPollAdapter(newsList);
+            news_recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+            news_recyclerView.setAdapter(adapter);
+            news_recyclerView.start();
 
 
             //设置定时切换
