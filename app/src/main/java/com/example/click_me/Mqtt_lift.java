@@ -24,7 +24,7 @@ public class Mqtt_lift {
     private String username="admin";
     private String password="admin";
     private String broker="tcp://47.96.26.134:1883";
-    private String clientId="user";
+    private String clientId="user"+System.currentTimeMillis();
     String content_1to2 = "001141|0557673|";
     String content_2to1 = "001142|0557673|";
     private static final int doorStat=0x002;

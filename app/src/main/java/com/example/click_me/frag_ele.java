@@ -219,6 +219,7 @@ public class frag_ele extends Fragment {
                         cnt_down.setVisibility(View.VISIBLE);
                     String direction = msg.getData().getString("direction");
                     if(direction.equals("up")){
+                        if(getActivity()!=null)
                         arrow.setBackground(getActivity().getResources().getDrawable(R.drawable.up_arrow));
                         if(t1 != null) {
                             t1.cancel();
@@ -246,6 +247,7 @@ public class frag_ele extends Fragment {
                             }.start();
                         }
                     }else if(direction.equals("down")){
+                        if(getActivity()!=null)
                         arrow.setBackground(getActivity().getResources().getDrawable(R.drawable.down_arrow));
                         if(t1 != null) {
                             t1.cancel();
